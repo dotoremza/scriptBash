@@ -1,0 +1,41 @@
+#!/bin/bash
+
+# Función para verificar si un puerto está abierto y obtener información del servicio
+check_port() {
+    local ip="$1"
+    local port="$2"
+    if nc -z -w1 "$ip" "$port" 2>/dev/null; then
+        echo "Port $port is open"
+    fi
+}
+
+# Función principal
+main() {
+    echo "Ingrese la IP a escanear:"
+    read ip_address
+
+    echo "Ingrese el rango a escanear (e.g., 1-100):"
+    read port_range
+
+    start_port=$(echo "$port_range" | cut -d'-' -f1)
+    end_port=$(echo "$port_range" | cut -d'-' -f2)
+
+    echo "Escaneando puertos... $start_port-$end_port on $ip_address..."
+
+    found_open_ports=false
+
+    for ((port=start_port; port<=end_port; port++)); do
+        if [ "$(check_port "$ip_address" "$port")" ]; then
+            found_open_ports=true
+            echo "Puerto $port Abierto"
+        fi
+    done
+
+    if [ "$found_open_ports" = false ]; then
+        echo "No se encontraron puertos Abiertos"
+    fi
+}
+
+# Ejecutar la función principal
+main
+       
